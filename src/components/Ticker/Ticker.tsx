@@ -1,3 +1,7 @@
+import cN from "classnames";
+
+import { useCryptonomiconActions } from "../../hooks/useCryptonomiconActions";
+import { useCryptonomiconSelector } from "../../hooks/useCryptonomiconSelector";
 import { DefaultTicker } from "../../types/initialState";
 
 interface Props {
@@ -5,9 +9,38 @@ interface Props {
 }
 
 export const Ticker: React.FC<Props> = ({ tickerData }) => {
+  const { removeTicker: removeTickerAction, selectTicker: selectTickerAcion } =
+    useCryptonomiconActions();
+  const { selectedTicker } = useCryptonomiconSelector(
+    (state) => state.tickersSlice,
+  );
+
+  const removeTicker = (tickerToRemoveId: string) => {
+    removeTickerAction(tickerToRemoveId);
+  };
+
+  const selectTicker = (tickerToSelectId: string) => {
+    selectTickerAcion(tickerToSelectId);
+  };
+
   return (
     <>
-      <div className="bg-white overflow-hidden shadow rounded-lg border-purple-800 border-solid border-4 cursor-pointer">
+      <div
+        onClick={() => {
+          selectTicker(tickerData.id);
+        }}
+        // className="bg-white overflow-hidden shadow rounded-lg border-purple-800 border-solid border-4 cursor-pointer"
+        className={cN(
+          { "border-4": selectedTicker === tickerData.id },
+          "bg-white",
+          "overflow-hidden",
+          "shadow",
+          "rounded-lg",
+          "border-purple-800",
+          "border-solid",
+          "cursor-pointer",
+        )}
+      >
         <div className="px-4 py-5 sm:p-6 text-center">
           <dt className="text-sm font-medium text-gray-500 truncate">
             {tickerData.name} - RUB
@@ -17,7 +50,12 @@ export const Ticker: React.FC<Props> = ({ tickerData }) => {
           </dd>
         </div>
         <div className="w-full border-t border-gray-200"></div>
-        <button className="flex items-center justify-center font-medium w-full bg-gray-100 px-4 py-4 sm:px-6 text-md text-gray-500 hover:text-gray-600 hover:bg-gray-200 hover:opacity-20 transition-all focus:outline-none">
+        <button
+          onClick={() => {
+            removeTicker(tickerData.id);
+          }}
+          className="flex items-center justify-center font-medium w-full bg-gray-100 px-4 py-4 sm:px-6 text-md text-gray-500 hover:text-gray-600 hover:bg-gray-200 hover:opacity-20 transition-all focus:outline-none"
+        >
           <svg
             className="h-5 w-5"
             xmlns="http://www.w3.org/2000/svg"

@@ -3,8 +3,9 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 // Types
 import { DefaultTicker, InitialState } from "../../types/initialState";
 
-const initialState: InitialState<DefaultTicker>= {
+const initialState: InitialState<DefaultTicker> = {
   tickers: [],
+  selectedTicker: null,
 };
 
 export const tickersSlice = createSlice({
@@ -16,8 +17,11 @@ export const tickersSlice = createSlice({
     },
     removeTicker: (state, action: PayloadAction<string>) => {
       state.tickers = state.tickers.filter(
-        (ticker) => ticker.name !== action.payload,
+        (ticker) => ticker.id !== action.payload,
       );
+    },
+    selectTicker: (state, action: PayloadAction<string | null>) => {
+      state.selectedTicker = action.payload;
     },
   },
 });

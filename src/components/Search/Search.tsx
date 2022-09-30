@@ -3,6 +3,9 @@ import { useDispatch } from "react-redux";
 import { useCryptonomiconActions } from "../../hooks/useCryptonomiconActions";
 import { useCryptonomiconSelector } from "../../hooks/useCryptonomiconSelector";
 
+import { v4 as uuidv4, v4 } from "uuid";
+import { DefaultTicker } from "../../types/initialState";
+
 export const Search = () => {
   // Local State
   const [searchQuery, setSearchQuery] = useState("");
@@ -11,10 +14,10 @@ export const Search = () => {
 
   // Store
   const { tickers } = useCryptonomiconSelector((state) => state.tickersSlice);
-  const { addTicker } = useCryptonomiconActions();
+  const { addTicker: addTickerAction } = useCryptonomiconActions();
 
   // Methods
-  const onClickHandler = () => {
+  const addNewTicker = () => {
     if (!searchQuery.length) {
       setIsInputEror(true);
 
@@ -24,24 +27,24 @@ export const Search = () => {
     const newTicker = {
       name: searchQuery,
       price: 0,
+      id: v4(),
     };
 
-    addTicker(newTicker);
-  };
-
-  console.log(tickers);
-
-  const isTickerExistValidation = (tickerName: string) => {
-    const foundedTicker = tickers.find((t) => t.name === tickerName);
-
-    if (foundedTicker) {
+    if (tickers.find((t) => t.name === newTicker.name)) {
       setIsTickerExist(true);
+
+      return;
     }
+
+    addTickerAction(newTicker);
   };
 
   const onInputChange = (value: string) => {
     setSearchQuery(value);
+
+    // Reset validations
     setIsInputEror(false);
+    setIsTickerExist(false);
   };
 
   return (
@@ -92,7 +95,7 @@ export const Search = () => {
         </div>
       </div>
       <button
-        onClick={() => onClickHandler()}
+        onClick={() => addNewTicker()}
         type="button"
         className="my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
       >

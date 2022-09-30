@@ -1,25 +1,25 @@
-import { useEffect } from "react";
 import "./app.css";
 
 import { Graph } from "./components/Graph";
 import { Search } from "./components/Search";
 import { Ticker } from "./components/Ticker";
+import { useCryptonomiconActions } from "./hooks/useCryptonomiconActions";
 
 import { useCryptonomiconSelector } from "./hooks/useCryptonomiconSelector";
 import { useLoadAllTickersQuery } from "./store/cryptocompare/cryptocompare.api";
 
-import { DefaultTicker } from "./types/initialState";
-
 function App() {
-  const { tickers } = useCryptonomiconSelector((state) => state.tickersSlice);
+  const { tickers, selectedTicker } = useCryptonomiconSelector(
+    (state) => state.tickersSlice,
+  );
+
+  const { selectTicker } = useCryptonomiconActions();
 
   const {
     isLoading: isTickersLoading,
     isError: isTickersErorr,
     data: tickersFromServer,
   } = useLoadAllTickersQuery("true");
-
-  console.log("tickers: ", tickers);
 
   return (
     <div className="App">
@@ -49,14 +49,45 @@ function App() {
       <div className="container mx-auto flex flex-col items-center bg-gray-100 p-4">
         <div className="container">
           <Search />
-          <hr className="w-full border-t border-gray-600 my-4" />
-          <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
-            {tickers.map((ticketData) => (
-              <Ticker tickerData={ticketData} />
-            ))}
-          </dl>
-          <hr className="w-full border-t border-gray-600 my-4" />
-          <Graph />
+          {tickers.length ? (
+            <>
+              {" "}
+              <hr className="w-full border-t border-gray-600 my-4" />
+              <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
+                {tickers.map((tickerData) => (
+                  <Ticker key={tickerData.id} tickerData={tickerData} />
+                ))}
+              </dl>
+              <hr className="w-full border-t border-gray-600 my-4" />{" "}
+            </>
+          ) : (
+            <div
+              className="flex  p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-blue-200 dark:text-blue-800"
+              role="alert"
+            >
+              <svg
+                aria-hidden="true"
+                className="flex-shrink-0 inline w-5 h-5 mr-3"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+              <span className="sr-only">Info</span>
+              <div>
+                <span className="font-medium">
+                  You have not added any tickers yet!
+                </span>{" "}
+                Please, add new ticker
+              </div>
+            </div>
+          )}
+          {tickers.length > 0 && selectedTicker && <Graph />}
         </div>
       </div>
     </div>
