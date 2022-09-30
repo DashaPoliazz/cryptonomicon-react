@@ -1,13 +1,19 @@
-export const Ticker = () => {
+import { DefaultTicker } from "../../types/initialState";
+
+interface Props {
+  tickerData: DefaultTicker;
+}
+
+export const Ticker: React.FC<Props> = ({ tickerData }) => {
   return (
     <>
       <div className="bg-white overflow-hidden shadow rounded-lg border-purple-800 border-solid border-4 cursor-pointer">
         <div className="px-4 py-5 sm:p-6 text-center">
           <dt className="text-sm font-medium text-gray-500 truncate">
-            VUE - RUB
+            {tickerData.name} - RUB
           </dt>
           <dd className="mt-1 text-3xl font-semibold text-gray-900">
-            80000.00
+            {tickerData.price}
           </dd>
         </div>
         <div className="w-full border-t border-gray-200"></div>

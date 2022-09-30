@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 // Types
 import { DefaultTicker, InitialState } from "../../types/initialState";
 
-const initialState: InitialState<DefaultTicker> = {
+const initialState: InitialState<DefaultTicker>= {
   tickers: [],
 };
 

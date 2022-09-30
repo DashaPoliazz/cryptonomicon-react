@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
+import { cryptonomiconApi } from "./cryptocompare/cryptocompare.api";
 import { tickerSliceReducer } from "./slices/Tickers";
 
 export const store = configureStore({
   reducer: {
-    tickers: tickerSliceReducer,
+    tickersSlice: tickerSliceReducer,
+    [cryptonomiconApi.reducerPath]: cryptonomiconApi.reducer,
   },
 });
 

@@ -1,14 +1,25 @@
+import { useEffect } from "react";
 import "./app.css";
 
 import { Graph } from "./components/Graph";
 import { Search } from "./components/Search";
 import { Ticker } from "./components/Ticker";
-import { useCryptonomiconSelector } from "./hooks/useAppSelector";
+
+import { useCryptonomiconSelector } from "./hooks/useCryptonomiconSelector";
+import { useLoadAllTickersQuery } from "./store/cryptocompare/cryptocompare.api";
+
+import { DefaultTicker } from "./types/initialState";
 
 function App() {
-  const tickerList = useCryptonomiconSelector((state) => state.tickers);
+  const { tickers } = useCryptonomiconSelector((state) => state.tickersSlice);
 
-  console.log(tickerList);
+  const {
+    isLoading: isTickersLoading,
+    isError: isTickersErorr,
+    data: tickersFromServer,
+  } = useLoadAllTickersQuery("true");
+
+  console.log("tickers: ", tickers);
 
   return (
     <div className="App">
@@ -40,7 +51,9 @@ function App() {
           <Search />
           <hr className="w-full border-t border-gray-600 my-4" />
           <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
-            <Ticker />
+            {tickers.map((ticketData) => (
+              <Ticker tickerData={ticketData} />
+            ))}
           </dl>
           <hr className="w-full border-t border-gray-600 my-4" />
           <Graph />

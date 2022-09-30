@@ -1,4 +1,49 @@
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useCryptonomiconActions } from "../../hooks/useCryptonomiconActions";
+import { useCryptonomiconSelector } from "../../hooks/useCryptonomiconSelector";
+
 export const Search = () => {
+  // Local State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isInputError, setIsInputEror] = useState(false);
+  const [isTickerExist, setIsTickerExist] = useState(false);
+
+  // Store
+  const { tickers } = useCryptonomiconSelector((state) => state.tickersSlice);
+  const { addTicker } = useCryptonomiconActions();
+
+  // Methods
+  const onClickHandler = () => {
+    if (!searchQuery.length) {
+      setIsInputEror(true);
+
+      return;
+    }
+
+    const newTicker = {
+      name: searchQuery,
+      price: 0,
+    };
+
+    addTicker(newTicker);
+  };
+
+  console.log(tickers);
+
+  const isTickerExistValidation = (tickerName: string) => {
+    const foundedTicker = tickers.find((t) => t.name === tickerName);
+
+    if (foundedTicker) {
+      setIsTickerExist(true);
+    }
+  };
+
+  const onInputChange = (value: string) => {
+    setSearchQuery(value);
+    setIsInputEror(false);
+  };
+
   return (
     <section>
       <div className="flex">
@@ -11,6 +56,8 @@ export const Search = () => {
           </label>
           <div className="mt-1 relative rounded-md shadow-md">
             <input
+              onChange={(e) => onInputChange(e.target.value)}
+              value={searchQuery}
               type="text"
               name="wallet"
               id="wallet"
@@ -32,10 +79,20 @@ export const Search = () => {
               CHD
             </span>
           </div>
-          <div className="text-sm text-red-600">Такой тикер уже добавлен</div>
+          {isTickerExist && (
+            <div className="text-sm text-red-600">
+              This ticker has been added already
+            </div>
+          )}
+          {isInputError && (
+            <div className="text-sm text-red-600">
+              Please, enter ticker name
+            </div>
+          )}
         </div>
       </div>
       <button
+        onClick={() => onClickHandler()}
         type="button"
         className="my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
       >
