@@ -11,6 +11,7 @@ import {
 } from "../../store/cryptocompare/cryptocompare.api";
 
 import { useDebounce } from "../../hooks/useCryptonomiconDebounce";
+import { HintLoader } from "../HintLoader";
 
 export const Search = () => {
   // Local State
@@ -33,11 +34,13 @@ export const Search = () => {
 
   const debouncedSearchQuery = useDebounce(searchQuery, 3000);
 
+  console.log(isTickersLoading);
+
   // useEffect
   useEffect(() => {
     loadAllTickers("true");
 
-    console.log(renderTickerHints(debouncedSearchQuery));
+    console.log(isTickersLoading);
   }, [debouncedSearchQuery]);
 
   // Methods
@@ -63,24 +66,24 @@ export const Search = () => {
     addTickerAction(newTicker);
   };
 
-  const renderTickerHints = useCallback((tickerToHint: string) => {
-    if (tickersFromServer) {
-      const tickerHints: string[] = [];
+  const renderTickerHints = useCallback(
+    (tickerToHint: string) => {
+      if (tickersFromServer) {
+        const tickerHints: string[] = [];
 
-      for (const tickerName in tickersFromServer) {
-        tickerHints.push(tickerName);
+        for (const tickerName in tickersFromServer) {
+          tickerHints.push(tickerName);
+        }
+
+        return tickerHints
+          .filter((t) =>
+            t.toLocaleLowerCase().includes(tickerToHint.toLowerCase()),
+          )
+          .splice(0, 4);
       }
-
-      return tickerHints
-        .filter((t) =>
-          t.toLocaleLowerCase().includes(tickerToHint.toLowerCase()),
-        )
-        .splice(0, 4);
-    }
-  }, [debouncedSearchQuery]);
-
-  // (tickerToHint: string) => {
-  // };
+    },
+    [debouncedSearchQuery],
+  );
 
   const onInputChange = (value: string) => {
     setSearchQuery(value);
@@ -102,7 +105,12 @@ export const Search = () => {
           </label>
           <div className="mt-1 relative rounded-md shadow-md">
             <input
-              onChange={(e) => onInputChange(e.target.value)}
+              onChange={(e) => {
+                onInputChange(e.target.value);
+              }}
+              onKeyPress={({ key }) => {
+                if (key === "Enter") addNewTicker();
+              }}
               value={searchQuery}
               type="text"
               name="wallet"
@@ -112,15 +120,21 @@ export const Search = () => {
             />
           </div>
           <div className="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap">
-            {renderTickerHints(debouncedSearchQuery)?.map(
-              (tickerFromServer) => (
-                <span onClick={() => {
-                  addNewTicker(tickerFromServer)
-                }} key={tickerFromServer} className="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">
-                  {tickerFromServer}
-                </span>
-              ),
-            )}
+            {isTickersLoading
+              ? [...new Array(4)].map((item, idx) => <HintLoader key={idx} />)
+              : renderTickerHints(debouncedSearchQuery)?.map(
+                  (tickerFromServer) => (
+                    <span
+                      onClick={() => {
+                        addNewTicker(tickerFromServer);
+                      }}
+                      key={tickerFromServer}
+                      className="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
+                    >
+                      {tickerFromServer}
+                    </span>
+                  ),
+                )}
           </div>
           {isTickerExist && (
             <div className="text-sm text-red-600">
