@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { useCryptonomiconActions } from "../../hooks/useCryptonomiconActions";
 import { useCryptonomiconSelector } from "../../hooks/useCryptonomiconSelector";
 
 import { v4 as uuidv4, v4 } from "uuid";
 import { DefaultTicker } from "../../types/initialState";
+import {
+  useLazyLoadAllTickersQuery,
+  useLoadAllTickersQuery,
+} from "../../store/cryptocompare/cryptocompare.api";
+
+import { useDebounce } from "../../hooks/useCryptonomiconDebounce";
 
 export const Search = () => {
   // Local State
@@ -16,8 +22,26 @@ export const Search = () => {
   const { tickers } = useCryptonomiconSelector((state) => state.tickersSlice);
   const { addTicker: addTickerAction } = useCryptonomiconActions();
 
+  const [
+    loadAllTickers,
+    {
+      isLoading: isTickersLoading,
+      isError: isTickersErorr,
+      data: tickersFromServer,
+    },
+  ] = useLazyLoadAllTickersQuery();
+
+  const debouncedSearchQuery = useDebounce(searchQuery, 3000);
+
+  // useEffect
+  useEffect(() => {
+    loadAllTickers("true");
+
+    console.log(renderTickerHints(debouncedSearchQuery));
+  }, [debouncedSearchQuery]);
+
   // Methods
-  const addNewTicker = () => {
+  const addNewTicker = (tickerName?: string) => {
     if (!searchQuery.length) {
       setIsInputEror(true);
 
@@ -25,7 +49,7 @@ export const Search = () => {
     }
 
     const newTicker = {
-      name: searchQuery,
+      name: tickerName || searchQuery,
       price: 0,
       id: v4(),
     };
@@ -38,6 +62,25 @@ export const Search = () => {
 
     addTickerAction(newTicker);
   };
+
+  const renderTickerHints = useCallback((tickerToHint: string) => {
+    if (tickersFromServer) {
+      const tickerHints: string[] = [];
+
+      for (const tickerName in tickersFromServer) {
+        tickerHints.push(tickerName);
+      }
+
+      return tickerHints
+        .filter((t) =>
+          t.toLocaleLowerCase().includes(tickerToHint.toLowerCase()),
+        )
+        .splice(0, 4);
+    }
+  }, [debouncedSearchQuery]);
+
+  // (tickerToHint: string) => {
+  // };
 
   const onInputChange = (value: string) => {
     setSearchQuery(value);
@@ -69,18 +112,15 @@ export const Search = () => {
             />
           </div>
           <div className="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap">
-            <span className="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">
-              BTC
-            </span>
-            <span className="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">
-              DOGE
-            </span>
-            <span className="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">
-              BCH
-            </span>
-            <span className="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">
-              CHD
-            </span>
+            {renderTickerHints(debouncedSearchQuery)?.map(
+              (tickerFromServer) => (
+                <span onClick={() => {
+                  addNewTicker(tickerFromServer)
+                }} key={tickerFromServer} className="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">
+                  {tickerFromServer}
+                </span>
+              ),
+            )}
           </div>
           {isTickerExist && (
             <div className="text-sm text-red-600">
