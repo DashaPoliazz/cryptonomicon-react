@@ -1,7 +1,10 @@
 import cN from "classnames";
 
+import { useEffect } from "react";
+
 import { useCryptonomiconActions } from "../../hooks/useCryptonomiconActions";
 import { useCryptonomiconSelector } from "../../hooks/useCryptonomiconSelector";
+import { useLazyLoadTickerPriceQuery } from "../../store/cryptocompare/cryptocompare.api";
 import { DefaultTicker } from "../../types/initialState";
 
 interface Props {
@@ -9,8 +12,18 @@ interface Props {
 }
 
 export const Ticker: React.FC<Props> = ({ tickerData }) => {
+  const [
+    loadTickerPrice,
+    {
+      isLoading: isTickerPriceLoading,
+      isError: isTickerPriceError,
+      data: price,
+    },
+  ] = useLazyLoadTickerPriceQuery();
+
   const { removeTicker: removeTickerAction, selectTicker: selectTickerAcion } =
     useCryptonomiconActions();
+    
   const { selectedTicker } = useCryptonomiconSelector(
     (state) => state.tickersSlice,
   );
@@ -26,6 +39,12 @@ export const Ticker: React.FC<Props> = ({ tickerData }) => {
   const selectTicker = (tickerToSelectId: string) => {
     selectTickerAcion(tickerToSelectId);
   };
+
+  useEffect(() => {
+    window.setInterval(() => {
+      loadTickerPrice(tickerData.name);
+    }, 3000);
+  }, []);
 
   return (
     <>
@@ -49,9 +68,7 @@ export const Ticker: React.FC<Props> = ({ tickerData }) => {
           <dt className="text-sm font-medium text-gray-500 truncate">
             {tickerData.name} - RUB
           </dt>
-          <dd className="mt-1 text-3xl font-semibold text-gray-900">
-            {tickerData.price}
-          </dd>
+          <dd className="mt-1 text-3xl font-semibold text-gray-900">{price}</dd>
         </div>
         <div className="w-full border-t border-gray-200"></div>
         <button

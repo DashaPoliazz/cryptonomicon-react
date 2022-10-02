@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { ITicker, ServerResponse } from "../../types/loadAllTickersResponse";
+import { LoadTickerPriceResponse } from "../../types/loadTIckerPriceResponse";
 
 export const cryptonomiconApi = createApi({
   reducerPath: "cryptonomicon/api",
@@ -16,8 +17,21 @@ export const cryptonomiconApi = createApi({
       }),
       transformResponse: (response: ServerResponse) => response.Data,
     }),
+    loadTickerPrice: build.query({
+      query: (fromTicker) => ({
+        url: "/data/price",
+        params: {
+          fsym: fromTicker,
+          tsyms: "USD",
+        },
+      }),
+      transformResponse: (response: LoadTickerPriceResponse) => response.USD,
+    }),
   }),
 });
 
-export const { useLazyLoadAllTickersQuery, useLoadAllTickersQuery } =
-  cryptonomiconApi;
+export const {
+  useLazyLoadAllTickersQuery,
+  useLoadAllTickersQuery,
+  useLazyLoadTickerPriceQuery,
+} = cryptonomiconApi;

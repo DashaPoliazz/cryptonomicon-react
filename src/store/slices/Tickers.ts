@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // Types
 import { DefaultTicker, InitialState } from "../../types/initialState";
+import { SetTickerPriceAction } from "../../types/setTickerPriceAction";
 
 const initialState: InitialState<DefaultTicker> = {
   tickers: [],
@@ -22,6 +23,15 @@ export const tickersSlice = createSlice({
     },
     selectTicker: (state, action: PayloadAction<string | null>) => {
       state.selectedTicker = action.payload;
+    },
+    setTickerPrice: (state, action: PayloadAction<SetTickerPriceAction>) => {
+      const foundedTicker = state.tickers.find(
+        (t) => t.name === action.payload.tickerName,
+      );
+
+      if (foundedTicker && action.payload.price) {
+        foundedTicker.price = action.payload.price;
+      }
     },
   },
 });

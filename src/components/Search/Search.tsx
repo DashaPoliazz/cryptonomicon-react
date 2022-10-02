@@ -7,6 +7,7 @@ import { v4 as uuidv4, v4 } from "uuid";
 import { DefaultTicker } from "../../types/initialState";
 import {
   useLazyLoadAllTickersQuery,
+  useLazyLoadTickerPriceQuery,
   useLoadAllTickersQuery,
 } from "../../store/cryptocompare/cryptocompare.api";
 
@@ -25,7 +26,8 @@ export const Search: React.FC<Props> = ({ onFilterChange }) => {
 
   // Store
   const { tickers } = useCryptonomiconSelector((state) => state.tickersSlice);
-  const { addTicker: addTickerAction } = useCryptonomiconActions();
+  const { addTicker: addTickerAction, setTickerPrice: setTickerPriceAction } =
+    useCryptonomiconActions();
 
   const [
     loadAllTickers,
@@ -68,6 +70,7 @@ export const Search: React.FC<Props> = ({ onFilterChange }) => {
     }
 
     addTickerAction(newTicker);
+
     onFilterChange("");
   };
 
@@ -154,7 +157,9 @@ export const Search: React.FC<Props> = ({ onFilterChange }) => {
         </div>
       </div>
       <button
-        onClick={() => addNewTicker()}
+        onClick={() => {
+          addNewTicker();
+        }}
         type="button"
         className="my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
       >
