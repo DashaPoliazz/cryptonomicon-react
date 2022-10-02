@@ -49,17 +49,17 @@ export const Search: React.FC<Props> = ({ onFilterChange }) => {
 
   // Methods
   const addNewTicker = (tickerName?: string) => {
-    if (!searchQuery.length) {
-      setIsInputEror(true);
-
-      return;
-    }
-
     const newTicker = {
       name: tickerName || searchQuery,
       price: 0,
       id: v4(),
     };
+
+    if (!newTicker.name) {
+      setIsInputEror(true);
+
+      return;
+    }
 
     if (tickers.find((t) => t.name === newTicker.name)) {
       setIsTickerExist(true);
@@ -128,15 +128,16 @@ export const Search: React.FC<Props> = ({ onFilterChange }) => {
             {(debouncedSearchQuery
               ? renderTickerHints(debouncedSearchQuery)
               : ["BTC", "ETH", "DOGE", "XRP"]
-            )?.map((tickerFromServer) => (
+            )?.map((tickerName) => (
               <span
                 onClick={() => {
-                  addNewTicker(tickerFromServer);
+                  console.log(tickerName);
+                  addNewTicker(tickerName);
                 }}
-                key={tickerFromServer}
+                key={tickerName}
                 className="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
               >
-                {tickerFromServer}
+                {tickerName}
               </span>
             ))}
           </div>
