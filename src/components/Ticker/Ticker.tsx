@@ -23,7 +23,7 @@ export const Ticker: React.FC<Props> = ({ tickerData }) => {
 
   const { removeTicker: removeTickerAction, selectTicker: selectTickerAcion } =
     useCryptonomiconActions();
-    
+
   const { selectedTicker } = useCryptonomiconSelector(
     (state) => state.tickersSlice,
   );
@@ -41,9 +41,13 @@ export const Ticker: React.FC<Props> = ({ tickerData }) => {
   };
 
   useEffect(() => {
-    window.setInterval(() => {
+    const interval = window.setInterval(() => {
       loadTickerPrice(tickerData.name);
     }, 3000);
+
+    return () => {
+      window.clearInterval(interval);
+    };
   }, []);
 
   return (
