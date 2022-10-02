@@ -17,6 +17,10 @@ export const Ticker: React.FC<Props> = ({ tickerData }) => {
 
   const removeTicker = (tickerToRemoveId: string) => {
     removeTickerAction(tickerToRemoveId);
+
+    if (tickerToRemoveId === selectedTicker) {
+      selectTickerAcion(null);
+    }
   };
 
   const selectTicker = (tickerToSelectId: string) => {
@@ -51,7 +55,8 @@ export const Ticker: React.FC<Props> = ({ tickerData }) => {
         </div>
         <div className="w-full border-t border-gray-200"></div>
         <button
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             removeTicker(tickerData.id);
           }}
           className="flex items-center justify-center font-medium w-full bg-gray-100 px-4 py-4 sm:px-6 text-md text-gray-500 hover:text-gray-600 hover:bg-gray-200 hover:opacity-20 transition-all focus:outline-none"

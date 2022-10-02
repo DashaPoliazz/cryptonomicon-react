@@ -10,7 +10,7 @@ export const Graph = () => {
   return (
     <section className="relative">
       <h3 className="text-lg leading-6 font-medium text-gray-900 my-8">
-        {tickers.find((t) => t.id === selectedTicker)?.name} - USD
+        {tickers.find((t) => t.id === selectedTicker)?.name.toUpperCase()} - USD
       </h3>
       <div className="flex items-end border-gray-600 border-b border-l h-64">
         <div className="bg-purple-800 border w-10 h-24"></div>
@@ -18,7 +18,11 @@ export const Graph = () => {
         <div className="bg-purple-800 border w-10 h-48"></div>
         <div className="bg-purple-800 border w-10 h-16"></div>
       </div>
-      <button onClick={() => selectTicker(null)} type="button" className="absolute top-0 right-0">
+      <button
+        onClick={() => selectTicker(null)}
+        type="button"
+        className="absolute top-0 right-0"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           version="1.1"

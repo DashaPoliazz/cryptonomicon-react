@@ -13,7 +13,11 @@ import {
 import { useDebounce } from "../../hooks/useCryptonomiconDebounce";
 import { HintLoader } from "../HintLoader";
 
-export const Search = () => {
+interface Props {
+  onFilterChange: (v: string) => void;
+}
+
+export const Search: React.FC<Props> = ({ onFilterChange }) => {
   // Local State
   const [searchQuery, setSearchQuery] = useState("");
   const [isInputError, setIsInputEror] = useState(false);
@@ -34,13 +38,13 @@ export const Search = () => {
 
   const debouncedSearchQuery = useDebounce(searchQuery, 3000);
 
-  console.log(isTickersLoading);
+  if (isTickersLoading) {
+    console.log("TRUE");
+  }
 
   // useEffect
   useEffect(() => {
     loadAllTickers("true");
-
-    console.log(isTickersLoading);
   }, [debouncedSearchQuery]);
 
   // Methods
@@ -64,6 +68,7 @@ export const Search = () => {
     }
 
     addTickerAction(newTicker);
+    onFilterChange("");
   };
 
   const renderTickerHints = useCallback(
@@ -120,21 +125,20 @@ export const Search = () => {
             />
           </div>
           <div className="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap">
-            {isTickersLoading
-              ? [...new Array(4)].map((item, idx) => <HintLoader key={idx} />)
-              : renderTickerHints(debouncedSearchQuery)?.map(
-                  (tickerFromServer) => (
-                    <span
-                      onClick={() => {
-                        addNewTicker(tickerFromServer);
-                      }}
-                      key={tickerFromServer}
-                      className="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
-                    >
-                      {tickerFromServer}
-                    </span>
-                  ),
-                )}
+            {(debouncedSearchQuery
+              ? renderTickerHints(debouncedSearchQuery)
+              : ["BTC", "ETH", "DOGE", "XRP"]
+            )?.map((tickerFromServer) => (
+              <span
+                onClick={() => {
+                  addNewTicker(tickerFromServer);
+                }}
+                key={tickerFromServer}
+                className="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer"
+              >
+                {tickerFromServer}
+              </span>
+            ))}
           </div>
           {isTickerExist && (
             <div className="text-sm text-red-600">

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "./app.css";
 
 import { Graph } from "./components/Graph";
@@ -9,11 +10,21 @@ import { useCryptonomiconSelector } from "./hooks/useCryptonomiconSelector";
 import { useLoadAllTickersQuery } from "./store/cryptocompare/cryptocompare.api";
 
 function App() {
+  const [filterQuery, setFilterQuery] = useState("");
+
   const { tickers, selectedTicker } = useCryptonomiconSelector(
     (state) => state.tickersSlice,
   );
 
   const { selectTicker } = useCryptonomiconActions();
+
+  const renderFiltereedTickers = () => {
+    return tickers
+      .filter((t) => t.name.toLowerCase().includes(filterQuery.toLowerCase()))
+      .map((tickerData) => (
+        <Ticker key={tickerData.id} tickerData={tickerData} />
+      ));
+  };
 
   return (
     <div className="App">
@@ -42,15 +53,24 @@ function App() {
 
       <div className="container mx-auto flex flex-col items-center bg-gray-100 p-4">
         <div className="container">
-          <Search />
+          <Search onFilterChange={setFilterQuery} />
           {tickers.length ? (
             <>
               {" "}
               <hr className="w-full border-t border-gray-600 my-4" />
+              <div className="mt-1 relative rounded-md shadow-md">
+                <input
+                  value={filterQuery}
+                  onChange={(e) => setFilterQuery(e.target.value)}
+                  type="text"
+                  name="wallet"
+                  id="wallet"
+                  className="block w-full pr-10 border-gray-300 text-gray-900 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm rounded-md"
+                  placeholder="Filter"
+                />
+              </div>
               <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
-                {tickers.map((tickerData) => (
-                  <Ticker key={tickerData.id} tickerData={tickerData} />
-                ))}
+                {renderFiltereedTickers()}
               </dl>
               <hr className="w-full border-t border-gray-600 my-4" />{" "}
             </>
